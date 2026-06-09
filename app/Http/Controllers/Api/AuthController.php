@@ -52,15 +52,24 @@ class AuthController extends Controller
 
         return response()->json([
             'user' => $user,
-            'token' => $token
+            'token' => $token,
+            'is_admin' => $user->is_admin,  // ← Important !
+            'role' => $user->is_admin ? 'admin' : 'client',  // ← Plus lisible
         ]);
     }
 
     // USER CONNECTÉ
     public function me(Request $request)
-    {
-        return response()->json($request->user());
-    }
+{
+    $user = $request->user();
+    return response()->json([
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'is_admin' => $user->is_admin,
+        'role' => $user->is_admin ? 'admin' : 'client'
+    ]);
+}
 
     // LOGOUT
     public function logout(Request $request)
@@ -71,5 +80,5 @@ class AuthController extends Controller
             'message' => 'Déconnecté'
         ]);
     }
-    
+
 }
