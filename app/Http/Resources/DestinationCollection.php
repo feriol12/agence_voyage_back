@@ -7,14 +7,9 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class DestinationCollection extends ResourceCollection
 {
-    /**
-     * Transform the resource collection into an array.
-     *
-     * @return array<int|string, mixed>
-     */
     public function toArray(Request $request): array
     {
-             return [
+        return [
             'data' => DestinationResource::collection($this->collection),
             'meta' => [
                 'total' => $this->total(),
