@@ -11,8 +11,8 @@ class DestinationController extends Controller
 {
        public function index()
     {
-        $destinations = Destination::paginate(15);
-        return new DestinationCollection($destinations);
+         $destinations = Destination::paginate(15);
+    return response()->json($destinations);
     }
 
     public function store(DestinationRequest $request)
