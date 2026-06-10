@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\StatsController;
 use Illuminate\Support\Facades\Mail;
+
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
@@ -16,9 +18,13 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+//Route protégées (authentification requise)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/admin/stats/users', [StatsController::class, 'getUsersStats']);
+
+
 });
 
 
