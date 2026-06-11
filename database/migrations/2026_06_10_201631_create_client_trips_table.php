@@ -14,7 +14,7 @@ return new class extends Migration
         // database/migrations/xxxx_create_client_trips_table.php
         Schema::create('client_trips', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('trip_id')->constrained()->onDelete('cascade');
             $table->foreignId('trip_date_id')->constrained('trip_dates')->onDelete('cascade');
             $table->foreignId('assigned_by')->constrained('users')->onDelete('cascade');
