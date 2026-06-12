@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // database/migrations/xxxx_create_client_trips_table.php
+        // Migration corrigée pour client_trips
         Schema::create('client_trips', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

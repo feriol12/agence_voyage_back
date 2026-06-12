@@ -6,13 +6,15 @@ use App\Models\Destination;
 use App\Http\Requests\DestinationRequest;
 use App\Http\Resources\DestinationResource;
 use App\Http\Resources\DestinationCollection;
+use Illuminate\Http\Request;
 
 class DestinationController extends Controller
 {
-       public function index()
+     public function index(Request $request)
     {
-         $destinations = Destination::paginate(15);
-    return response()->json($destinations);
+        $perPage = $request->input('per_page', 9);
+        $destinations = Destination::paginate($perPage);
+        return new DestinationCollection($destinations);
     }
 
     public function store(DestinationRequest $request)
@@ -30,9 +32,10 @@ class DestinationController extends Controller
     public function update(DestinationRequest $request, $id)
     {
         $destination = Destination::findOrFail($id);
-        $destination->update($request->validated());
+        $destination->update($request->only(array_keys($request->all())));
         return new DestinationResource($destination);
     }
+
 
     public function destroy($id)
     {
@@ -40,5 +43,4 @@ class DestinationController extends Controller
         $destination->delete();
         return response()->json(['message' => 'Destination supprimée avec succès'], 200);
     }
-
 }
