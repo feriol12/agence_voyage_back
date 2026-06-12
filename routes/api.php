@@ -5,7 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\DestinationController;
 use Illuminate\Support\Facades\Mail;
-use App\Http\Controllers\StatsController;
+use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\TripController;
 
 // Routes DESTINATIONS
@@ -38,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('admin')->prefix('admin')->group(function () {  // ← 'admin' au lieu de 'role:admin'
 
         // Stats admin
-        // Route::get('/stats/users', [StatsController::class, 'getUsersStats']);
+        Route::get('/stats/users', [StatsController::class, 'getUsersStats']);
 
         // Gestion des destinations
         Route::apiResource('destinations', DestinationController::class);
