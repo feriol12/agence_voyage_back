@@ -7,59 +7,103 @@ use Illuminate\Http\Request;
 
 class TripController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // 📌 LISTE DES TRIPS (avec pagination)
     public function index()
     {
-        //
+        $trips = Trip::with('destination', 'tripDates')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return response()->json([
+            'data' => $trips
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
+    // 📌 CREATE TRIP
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'destination_id' => 'required|exists:destinations,id',
+            'title' => 'required|string|max:255',
+            'reference' => 'required|string|unique:trips,reference',
+            'description' => 'nullable|string',
+            'duration_days' => 'required|integer|min:1',
+            'capacity' => 'required|integer|min:1',
+            'base_price' => 'required|numeric|min:0',
+            'status' => 'required|in:disponible,complet,ferme',
+            'is_active' => 'boolean'
+        ]);
+
+        $trip = Trip::create($validated);
+
+        return response()->json([
+            'message' => 'Trip created successfully',
+            'data' => $trip
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Trip $trip)
+    // 📌 SHOW TRIP
+    public function show($id)
     {
-        //
+        $trip = Trip::with('destination', 'tripDates')->find($id);
+
+        if (!$trip) {
+            return response()->json([
+                'message' => 'Trip not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $trip
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Trip $trip)
+    // 📌 UPDATE TRIP
+    public function update(Request $request, $id)
     {
-        //
+        $trip = Trip::find($id);
+
+        if (!$trip) {
+            return response()->json([
+                'message' => 'Trip not found'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'destination_id' => 'sometimes|exists:destinations,id',
+            'title' => 'sometimes|string|max:255',
+            'reference' => 'sometimes|string|unique:trips,reference,' . $id,
+            'description' => 'nullable|string',
+            'duration_days' => 'sometimes|integer|min:1',
+            'capacity' => 'sometimes|integer|min:1',
+            'base_price' => 'sometimes|numeric|min:0',
+            'status' => 'sometimes|in:disponible,complet,ferme',
+            'is_active' => 'boolean'
+        ]);
+
+        $trip->update($validated);
+
+        return response()->json([
+            'message' => 'Trip updated successfully',
+            'data' => $trip
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Trip $trip)
+    // 📌 DELETE TRIP
+    public function destroy($id)
     {
-        //
-    }
+        $trip = Trip::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Trip $trip)
-    {
-        //
+        if (!$trip) {
+            return response()->json([
+                'message' => 'Trip not found'
+            ], 404);
+        }
+
+        $trip->delete();
+
+        return response()->json([
+            'message' => 'Trip deleted successfully'
+        ]);
     }
 }

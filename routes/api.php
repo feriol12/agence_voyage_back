@@ -5,60 +5,38 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\StatsController;
-use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\DestinationController;
+use App\Http\Controllers\TripController;
+use Illuminate\Support\Facades\Mail;
 
-
-
-
-// Routes accessibles uniquement aux admins
-Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
-    Route::apiResource('destinations', DestinationController::class);
-});
-
-// Routes accessibles à tous (lecture seule)
-Route::get('destinations', [DestinationController::class, 'index']);
-Route::get('destinations/{id}', [DestinationController::class, 'show']);
-
-// Route::prefix('admin')->group(function () {
-//     Route::apiResource('destinations', DestinationController::class);
-// });
-
-
-// Routes accessibles uniquement aux admins
-// Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
-//     Route::apiResource('destinations', DestinationController::class);
-// });
-
-// Routes accessibles à tous (lecture seule)
-Route::get('destinations', [DestinationController::class, 'index']);
-Route::get('destinations/{id}', [DestinationController::class, 'show']);
-
-Route::prefix('admin')->group(function () {
-    Route::apiResource('destinations', DestinationController::class);
-});
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
-
-// Routes publiques
+// ==================== ROUTES PUBLIQUES ====================
 Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-//Route protégées (authentification requise)
+// ==================== ROUTES PROTÉGÉES (AUTH + TOKEN) ====================
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Routes utilisateur de base
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/admin/stats/users', [StatsController::class, 'getUsersStats']);
 
+    // ==================== ROUTES ADMIN UNIQUEMENT ====================
+    Route::middleware('admin')->prefix('admin')->group(function () {  // ← 'admin' au lieu de 'role:admin'
 
+        // Stats admin
+        Route::get('/stats/users', [StatsController::class, 'getUsersStats']);
+
+        // Gestion des destinations
+        Route::apiResource('destinations', DestinationController::class);
+
+        // Gestion des voyages
+        Route::apiResource('trips', TripController::class);
+    });
 });
 
-
-
+// ==================== ROUTES DE TEST ====================
 Route::get('/test-mail', function () {
     try {
         Mail::raw('Test de réinitialisation', function ($message) {
