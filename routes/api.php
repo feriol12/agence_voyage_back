@@ -7,6 +7,7 @@ use App\Http\Controllers\DestinationController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\TripController;
+use App\Http\Controllers\TripDateController;
 
 // Routes DESTINATIONS
 Route::prefix('admin')->group(function () {
@@ -45,6 +46,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Gestion des voyages
         Route::apiResource('trips', TripController::class);
+
+        // Gestion des dates de voyage
+        // Route::apiResource('trips/{trip}/dates', TripDateController::class);
+
+
+         // ✅ Gestion des dates de voyage (corrigé)
+        Route::prefix('trips/{trip}/dates')->group(function () {
+            Route::get('/', [TripDateController::class, 'index']);
+            Route::post('/', [TripDateController::class, 'store']);
+            Route::put('/{tripDate}', [TripDateController::class, 'update']);
+            Route::delete('/{tripDate}', [TripDateController::class, 'destroy']);
+        });
     });
 });
 
