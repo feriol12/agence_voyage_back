@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\TripDateController;
+use App\Http\Controllers\ClientTripController;
+use App\Http\Controllers\Api\UserController;
+
 
 // Routes DESTINATIONS
 Route::prefix('admin')->group(function () {
@@ -37,7 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // ==================== ROUTES ADMIN UNIQUEMENT ====================
     Route::middleware('admin')->prefix('admin')->group(function () {  // ← 'admin' au lieu de 'role:admin'
-
+      // Gestion des utilisateurs
+        Route::apiResource('users', UserController::class);
         // Stats admin
         Route::get('/stats/users', [StatsController::class, 'getUsersStats']);
 
@@ -47,9 +51,8 @@ Route::middleware('auth:sanctum')->group(function () {
         // Gestion des voyages
         Route::apiResource('trips', TripController::class);
 
-        // Gestion des dates de voyage
-        // Route::apiResource('trips/{trip}/dates', TripDateController::class);
-
+         // Route pour qu'un client voit ses voyages (dans groupe auth:sanctum)
+        Route::get('my-trips', [ClientTripController::class, 'getMyTrips']);
 
          // ✅ Gestion des dates de voyage (corrigé)
         Route::prefix('trips/{trip}/dates')->group(function () {
@@ -58,6 +61,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::put('/{tripDate}', [TripDateController::class, 'update']);
             Route::delete('/{tripDate}', [TripDateController::class, 'destroy']);
         });
+
+
+         // Gestion des inscriptions
+    Route::apiResource('client-trips', ClientTripController::class);
+    Route::put('client-trips/{clientTrip}/status', [ClientTripController::class, 'updateStatus']);
+    Route::put('client-trips/{clientTrip}/notes', [ClientTripController::class, 'updateNotes']);
     });
 });
 
