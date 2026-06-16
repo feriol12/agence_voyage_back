@@ -10,13 +10,31 @@ use Illuminate\Http\Request;
 
 class DestinationController extends Controller
 {
-     public function index(Request $request)
+    public function index(Request $request)
     {
+        $query = Destination::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('country', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('continent')) {
+            $query->where('continent', $request->continent);
+        }
+
+        if ($request->has('is_active') && $request->is_active !== '') {
+            $query->where('is_active', $request->is_active);
+        }
+
         $perPage = $request->input('per_page', 9);
-        $destinations = Destination::paginate($perPage);
+        $destinations = $query->paginate($perPage);
+
         return new DestinationCollection($destinations);
     }
-
     public function store(DestinationRequest $request)
     {
         $destination = Destination::create($request->validated());
