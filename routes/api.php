@@ -8,14 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TripController;
 
-// Routes DESTINATIONS
-Route::prefix('admin')->group(function () {
-    Route::get('destinations', [DestinationController::class, 'index']);
-    Route::get('destinations/{id}', [DestinationController::class, 'show']);
-    Route::post('destinations', [DestinationController::class, 'store']);
-    Route::put('destinations/{id}', [DestinationController::class, 'update']);
-    Route::delete('destinations/{id}', [DestinationController::class, 'destroy']);
-});
+
 
 // Routes publiques (lecture seule)
 Route::get('destinations', [DestinationController::class, 'index']);
