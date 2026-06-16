@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Notifications\ResetPasswordNotification; 
+use App\Notifications\ResetPasswordNotification;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable , HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -47,10 +47,23 @@ class User extends Authenticatable
         ];
     }
 
-        // ✅ AJOUTE CETTE MÉTHODE ICI
+    // ✅ AJOUTE CETTE MÉTHODE ICI
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordNotification($token, $this->email));
     }
 
+    // Relations pour les voyages du client (uniquement pour les non-admins)
+    public function clientTrips()
+    {
+        return $this->hasMany(ClientTrip::class, 'user_id');
+    }
+
+    // Les voyages auxquels le client est inscrit
+    public function trips()
+    {
+        return $this->belongsToMany(Trip::class, 'client_trips', 'user_id', 'trip_id')
+            ->withPivot('trip_date_id', 'status', 'notes', 'assigned_by', 'assigned_at')
+            ->withTimestamps();
+    }
 }
