@@ -8,15 +8,39 @@ use Illuminate\Http\Request;
 class TripController extends Controller
 {
     // 📌 LISTE DES TRIPS (avec pagination)
-    public function index()
-    {
-        $trips = Trip::with('destination', 'tripDates')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+  
 
-        return response()->json([
-            'data' => $trips
-        ]);
+    public function index(Request $request)
+    {
+        $query = Trip::with(['destination', 'tripDates']);
+
+        // 🔥 RECHERCHE par titre ou référence
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('reference', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        // 🔥 FILTRE par statut (disponible, complet, ferme)
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // 🔥 FILTRE par actif/inactif (is_active)
+        if ($request->filled('is_active')) {
+            $query->where('is_active', $request->is_active);
+        }
+
+        // 🔥 TRI par date de création (le plus récent d'abord)
+        // $trips = $query->orderBy('created_at', 'desc')->paginate(3);
+        // 🔥 Nombre d'éléments par page (par défaut 10)
+        $perPage = $request->per_page ?? 10;
+
+        $trips = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        return response()->json($trips);
     }
 
     // 📌 CREATE TRIP
